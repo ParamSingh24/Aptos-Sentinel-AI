@@ -45,7 +45,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-10 gap-8">
-      <h1 className="text-6xl font-bold glitch-text mb-4">SENTINEL AI</h1>
+      <h1 className="text-6xl font-bold glitch-text mb-4">APTOS SENTINEL AI</h1>
 
       <div className="cyber-box p-6 rounded md:w-1/2 w-full flex flex-col items-center gap-4">
         <h2 className="text-2xl">ACCESS TERMINAL</h2>

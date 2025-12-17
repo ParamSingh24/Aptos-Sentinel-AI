@@ -3,7 +3,7 @@ import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
 // Internal components
 import { useToast } from "@/components/ui/use-toast";
 // Internal constants
-import { APTOS_API_KEY, NETWORK } from "@/constants";
+import { NETWORK } from "@/constants";
 
 export function WalletProvider({ children }: PropsWithChildren) {
   const { toast } = useToast();
@@ -12,7 +12,7 @@ export function WalletProvider({ children }: PropsWithChildren) {
     <AptosWalletAdapterProvider
       autoConnect={true}
       dappConfig={{ network: NETWORK }}
-      optInWallets={["Continue with Google", "Petra", "Pontem", "Martian", "Rise"]}
+      optInWallets={["Petra", "Continue with Google"]}
       onError={(error) => {
         toast({
           variant: "destructive",
