@@ -33,9 +33,12 @@ except ImportError:
         def get_transaction_by_hash(self, hash): return "Mock Transaction Data"
     client = RestClient("https://fullnode.devnet.aptoslabs.com/v1")
 
-# Gemini Setup (REAL KEY)
-GEMINI_API_KEY = "AIzaSyDzhLwQY4gO7yEdbj8DDnyZZG9oqBRuZjQ"
-genai.configure(api_key=GEMINI_API_KEY)
+# Gemini Setup
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+else:
+    print("WARNING: GEMINI_API_KEY not found. AI Audit will return mock data.")
 
 class AuditRequest(BaseModel):
     target: str # Address or Transaction Hash
