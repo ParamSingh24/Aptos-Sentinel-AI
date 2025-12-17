@@ -31,7 +31,7 @@ function App() {
       const isTx = target.startsWith("0x") && target.length > 60; // Simple heuristic
       const type = isTx ? "transaction" : "address";
 
-      const response = await axios.post("http://127.0.0.1:8000/api/audit", {
+      const response = await axios.post("/api/audit", {
         target,
         type
       });
