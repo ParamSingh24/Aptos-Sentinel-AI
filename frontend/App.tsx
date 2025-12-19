@@ -59,7 +59,8 @@ function App() {
     try {
       const isTx = target.startsWith("0x") && target.length > 60; // Simple heuristic
       const type = isTx ? "transaction" : "address";
-      const response = await axios.post("http://localhost:8000/api/audit", { target, type });
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const response = await axios.post(`${API_URL}/api/audit`, { target, type });
       setAuditResult(response.data);
     } catch (error) {
       console.error(error);
