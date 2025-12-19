@@ -79,7 +79,7 @@ function App() {
 
         {/* HERO SECTION */}
         <header className="text-center space-y-2">
-          <h1 className="text-6xl md:text-9xl font-bold glitch-text">SENTINEL AI</h1>
+          <h1 className="text-6xl md:text-9xl font-bold glitch-text">APTOS SENTINEL AI</h1>
           <p className="text-[#39FF14] tracking-[0.5em] text-sm md:text-xl uppercase animate-pulse">
             Autonomous Smart Contract Security Auditor
           </p>

@@ -106,7 +106,7 @@ function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
             )}
           </DialogTitle>
           <div className="sr-only">
-            <DialogDescription>Connect your wallet to access the Sentinel AI terminal.</DialogDescription>
+            <DialogDescription>Connect your wallet to access the Aptos Sentinel AI terminal.</DialogDescription>
           </div>
         </DialogHeader>
 
