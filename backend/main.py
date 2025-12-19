@@ -70,22 +70,53 @@ async def audit_target(request: AuditRequest):
     try:
         bytecode_context = ""
         
-        if request.type == "address":
-            # Fetch modules from address
-            modules = await client.account_modules(request.target)
-            extracts = []
-            for module in modules:
-                if 'abi' in module:
-                    extracts.append(str(module['abi']))
-            bytecode_context = "\n".join(extracts)
+        if not request.type:
+             # Heuristic fallback if type is empty/unknown
+             request.type = "address"
+
+        # Attempts to fetch code/info with a fallback mechanism
+        try:
+            # TRY 1: As Address (Modules)
+            if request.type == "address":
+                modules = await client.account_modules(request.target)
+                extracts = []
+                for module in modules:
+                    if 'abi' in module:
+                        extracts.append(str(module['abi']))
+                bytecode_context = "\n".join(extracts)
             
-        elif request.type == "transaction":
-            # Fetch transaction details
-            tx = await client.transaction_by_hash(request.target)
-            bytecode_context = str(tx)
+            # TRY 2: As Transaction (Tx Hash)
+            elif request.type == "transaction":
+                tx = await client.transaction_by_hash(request.target)
+                bytecode_context = str(tx)
         
-        else:
-            raise HTTPException(status_code=400, detail="Invalid audit type")
+        except Exception as first_error:
+            # If the first attempt failed, try the OTHER type just in case the frontend guessed wrong.
+            print(f"Primary fetch failed ({request.type}): {first_error}. Retrying as alternate...")
+            try:
+                if request.type == "address":
+                    # Retry as transaction
+                    tx = await client.transaction_by_hash(request.target)
+                    bytecode_context = str(tx)
+                    print("Retry success: It was a transaction.")
+                else: 
+                    # Retry as address
+                    modules = await client.account_modules(request.target)
+                    extracts = []
+                    for module in modules:
+                        if 'abi' in module:
+                            extracts.append(str(module['abi']))
+                    bytecode_context = "\n".join(extracts)
+                    print("Retry success: It was an address.")
+            except Exception as second_error:
+                # If both fail, then it really is bad.
+                print(f"Double failure. Giving up. {second_error}")
+                # Don't crash 500, return a 404-like analysis
+                return {
+                    "status": "Unknown", 
+                    "reason": f"Could not find code for target. Is it a valid address or hash? (Error: {str(first_error)})", 
+                    "risk_score": 0
+                }
 
         if not bytecode_context:
             return {"status": "Safe", "reason": "No executable code found to analyze.", "risk_score": 0}

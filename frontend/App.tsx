@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { WalletSelector } from "@aptos-labs/wallet-adapter-ant-design";
-import "@aptos-labs/wallet-adapter-ant-design/dist/index.css";
+import { WalletSelector } from "@/components/WalletSelector"; // Use custom local component
 import axios from "axios";
 
 // --- Components ---
@@ -142,7 +141,7 @@ function App() {
                 <h3 className="text-3xl mb-6 border-b border-[#39FF14] flex justify-between items-center pb-4">
                   <span>SCAN RESULT</span>
                   <span className={`px-6 py-2 rounded border-2 font-bold text-2xl ${auditResult.status === "Safe" ? "border-green-500 text-green-400 bg-green-900 bg-opacity-20" :
-                      auditResult.status === "Risky" ? "border-red-500 text-red-500 bg-red-900 bg-opacity-20" : "border-yellow-500 text-yellow-500"
+                    auditResult.status === "Risky" ? "border-red-500 text-red-500 bg-red-900 bg-opacity-20" : "border-yellow-500 text-yellow-500"
                     }`}>
                     {auditResult.status?.toUpperCase() || "UNKNOWN"}
                   </span>

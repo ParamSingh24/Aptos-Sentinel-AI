@@ -17,7 +17,7 @@ import { useCallback, useState } from "react";
 // Internal components
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -92,10 +92,10 @@ function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
   const hasAptosConnectWallets = !!aptosConnectWallets.length;
 
   return (
-    <DialogContent className="max-h-screen overflow-auto">
+    <DialogContent className="max-h-screen overflow-auto bg-[#1a1a1a] border-[#39FF14] text-[#39FF14]">
       <AboutAptosConnect renderEducationScreen={renderEducationScreen}>
         <DialogHeader>
-          <DialogTitle className="flex flex-col text-center leading-snug">
+          <DialogTitle className="flex flex-col text-center leading-snug text-[#39FF14] font-mono tracking-widest uppercase">
             {hasAptosConnectWallets ? (
               <>
                 <span>Log in or sign up</span>
@@ -105,6 +105,9 @@ function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
               "Connect Wallet"
             )}
           </DialogTitle>
+          <div className="sr-only">
+            <DialogDescription>Connect your wallet to access the Sentinel AI terminal.</DialogDescription>
+          </div>
         </DialogHeader>
 
         {hasAptosConnectWallets && (
@@ -168,19 +171,19 @@ function WalletRow({ wallet, onConnect }: WalletRowProps) {
     <WalletItem
       wallet={wallet}
       onConnect={onConnect}
-      className="flex items-center justify-between px-4 py-3 gap-4 border rounded-md"
+      className="flex items-center justify-between px-4 py-3 gap-4 border border-gray-700 rounded-md bg-black hover:bg-[#111] hover:border-[#39FF14] transition-colors group cursor-pointer"
     >
       <div className="flex items-center gap-4">
         <WalletItem.Icon className="h-6 w-6" />
-        <WalletItem.Name className="text-base font-normal" />
+        <WalletItem.Name className="text-base font-normal text-gray-300 group-hover:text-[#39FF14] font-mono" />
       </div>
       {isInstallRequired(wallet) ? (
-        <Button size="sm" variant="ghost" asChild>
+        <Button size="sm" variant="ghost" asChild className="text-gray-500 hover:text-white">
           <WalletItem.InstallLink />
         </Button>
       ) : (
         <WalletItem.ConnectButton asChild>
-          <Button size="sm">Connect</Button>
+          <Button size="sm" className="bg-[#39FF14] text-black hover:bg-green-400 font-bold">Connect</Button>
         </WalletItem.ConnectButton>
       )}
     </WalletItem>
