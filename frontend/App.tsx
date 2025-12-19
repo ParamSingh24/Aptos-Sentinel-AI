@@ -37,7 +37,8 @@ function App() {
 
   useEffect(() => {
     // Check backend health
-    axios.get("http://localhost:8000/")
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+    axios.get(`${API_URL}/`)
       .then(() => setSystemStatus("ONLINE"))
       .catch(() => setSystemStatus("OFFLINE (Backend Connection Failed)"));
   }, []);
