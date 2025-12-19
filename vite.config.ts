@@ -7,7 +7,6 @@ export default defineConfig({
     outDir: "dist",
     chunkSizeWarningLimit: 5000,
     rollupOptions: {
-      external: ['buffer'],
     },
   },
   server: {

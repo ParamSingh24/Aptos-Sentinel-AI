@@ -1,6 +1,0 @@
-fastapi
-uvicorn
-aptos-sdk
-google-generativeai
-python-dotenv
-pydantic
