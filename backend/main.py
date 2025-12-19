@@ -31,12 +31,49 @@ except ImportError:
 
 client = None # Global placeholder
 
-# Gemini Setup
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-else:
-    print("WARNING: GEMINI_API_KEY not found. AI Audit will return mock data.")
+# Gemini Setup with Fallback
+GEMINI_KEYS = []
+if os.getenv("GEMINI_API_KEY"):
+    GEMINI_KEYS.append(os.getenv("GEMINI_API_KEY"))
+if os.getenv("GEMINI_API_KEY_BACKUP"):
+    GEMINI_KEYS.append(os.getenv("GEMINI_API_KEY_BACKUP"))
+
+current_key_index = 0
+
+def get_gemini_model():
+    global current_key_index
+    if not GEMINI_KEYS:
+        return None
+    
+    # Configure with current key
+    genai.configure(api_key=GEMINI_KEYS[current_key_index])
+    return genai.GenerativeModel('gemini-1.5-pro')
+
+def rotate_key():
+    global current_key_index
+    if len(GEMINI_KEYS) > 1:
+        current_key_index = (current_key_index + 1) % len(GEMINI_KEYS)
+        print(f"Switching to API Key Index: {current_key_index}")
+        return True
+    return False
+
+def generate_safe(prompt):
+    """Attempts generation, retries with backup key on 429/Error"""
+    if not GEMINI_KEYS:
+        return None
+    
+    attempts = len(GEMINI_KEYS)
+    for _ in range(attempts):
+        try:
+            model = get_gemini_model()
+            return model.generate_content(prompt)
+        except Exception as e:
+            print(f"Gemini Error (Key {current_key_index}): {e}")
+            if "429" in str(e) or "quota" in str(e).lower():
+                if rotate_key():
+                    continue # Retry with new key
+            raise e # If not quota error or no keys left, raise
+    return None
 
 class AuditRequest(BaseModel):
     target: str # Address or Transaction Hash
@@ -122,7 +159,7 @@ async def audit_target(request: AuditRequest):
             return {"status": "Safe", "reason": "No executable code found to analyze.", "risk_score": 0}
 
         # AI Analysis
-        if GEMINI_API_KEY:
+        if GEMINI_KEYS:
             model = genai.GenerativeModel('gemini-1.5-pro')
             prompt = f"""
             You are a Smart Contract Auditor for the Aptos Blockchain.
@@ -142,7 +179,9 @@ async def audit_target(request: AuditRequest):
                 "reason": "Brief explanation..."
             }}
             """
-            response = model.generate_content(prompt)
+            response = generate_safe(prompt)
+            if not response:
+                 raise Exception("AI Generation Failed")
             # Clean up response text to ensure JSON
             text = response.text.replace("```json", "").replace("```", "").strip()
             # Attempt to parse or return raw if failed? simpler to just return raw text if we rely on frontend parsing, but let's try to be clean.
@@ -184,7 +223,7 @@ async def simulate_transaction(request: SimulationRequest):
                 abi_context = str(module['abi'])
                 break
         
-        if GEMINI_API_KEY:
+        if GEMINI_KEYS:
              model = genai.GenerativeModel('gemini-1.5-pro')
              prompt = f"""
              Predict the outcome of this Aptos Transaction Simulation.
@@ -210,7 +249,9 @@ async def simulate_transaction(request: SimulationRequest):
                  "analysis": "Brief explanation"
              }}
              """
-             response = model.generate_content(prompt)
+             response = generate_safe(prompt)
+             if not response:
+                 raise Exception("AI Generation Failed")
              text = response.text.replace("```json", "").replace("```", "").strip()
              import json
              try:
