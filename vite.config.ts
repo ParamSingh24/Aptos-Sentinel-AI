@@ -5,7 +5,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   build: {
     outDir: "dist",
-    chunkSizeWarningLimit: 1600,
+    chunkSizeWarningLimit: 3000,
     rollupOptions: {
       external: ['buffer'],
     },
