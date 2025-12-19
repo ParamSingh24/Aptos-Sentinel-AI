@@ -6,17 +6,23 @@ import axios from "axios";
 
 // --- Components ---
 
-const StatsBar = () => (
-  <div className="w-full bg-[#1a1a1a] border-b border-[#39FF14] p-2 flex justify-around text-xs md:text-sm text-[#39FF14] font-mono z-50">
-    <span>APTOS PRICE: $9.45 <span className="text-green-500">▲ 2.3%</span></span>
-    <span>NETWORK: DEVNET</span>
-    <span>TPS: 1,245</span>
-    <span>ACTIVE NODES: 104</span>
+const StatsBar = ({ status }: { status: string }) => (
+  <div className="w-full bg-[#1a1a1a] border-b border-[#39FF14] p-3 flex flex-wrap justify-between items-center text-xs md:text-sm text-[#39FF14] font-mono z-50 sticky top-0 shadow-[0_5px_15px_rgba(0,0,0,0.5)]">
+    <div className="flex gap-4">
+      <span className="font-bold">SYSTEM: <span className={status === "ONLINE" ? "text-green-500 animate-pulse" : "text-red-500"}>{status}</span></span>
+      <span className="hidden md:inline">|</span>
+      <span>NET: DEVNET</span>
+    </div>
+    <div className="flex gap-6">
+      <span>APTOS: $9.45 <span className="text-green-500">▲</span></span>
+      <span className="hidden sm:inline">TPS: 1,245</span>
+      <span className="hidden sm:inline">NODES: 104</span>
+    </div>
   </div>
 );
 
 const FeatureCard = ({ title, icon, desc }: { title: string, icon: string, desc: string }) => (
-  <div className="cyber-box p-6 flex flex-col items-center text-center hover:scale-105 transition-transform duration-300">
+  <div className="cyber-box p-6 flex flex-col items-center text-center hover:scale-105 transition-transform duration-300 bg-[#0d0d0d] bg-opacity-80">
     <div className="text-4xl mb-4">{icon}</div>
     <h3 className="text-xl font-bold mb-2 text-[#39FF14]">{title}</h3>
     <p className="text-gray-400 text-sm">{desc}</p>
@@ -64,40 +70,43 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden pb-10">
       {/* Moving Grid Background (CSS handled in index.css) */}
 
-      <StatsBar />
+      <StatsBar status={systemStatus} />
 
-      <main className="flex-grow flex flex-col items-center p-10 gap-12 z-10 w-full max-w-6xl mx-auto">
+      <main className="flex-grow flex flex-col items-center p-6 gap-10 z-10 w-full max-w-7xl mx-auto mt-4">
 
         {/* HERO SECTION */}
-        <header className="text-center space-y-4">
-          <h1 className="text-6xl md:text-8xl font-bold glitch-text">SENTINEL AI</h1>
-          <p className="text-[#39FF14] tracking-[0.3em] text-lg uppercase animate-pulse">
+        <header className="text-center space-y-2">
+          <h1 className="text-6xl md:text-9xl font-bold glitch-text">SENTINEL AI</h1>
+          <p className="text-[#39FF14] tracking-[0.5em] text-sm md:text-xl uppercase animate-pulse">
             Autonomous Smart Contract Security Auditor
           </p>
         </header>
 
-        {/* MAIN TERMINAL */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* MAIN TERMINAL - FULL WIDTH */}
+        <div className="w-full max-w-4xl flex flex-col gap-8">
 
-          {/* LEFT: ACCESS PANEL */}
-          <div className="cyber-box p-8 rounded flex flex-col items-center gap-6 h-fit bg-opacity-95 bg-[#0d0d0d]">
-            <h2 className="text-2xl tracking-widest border-b border-[#39FF14] pb-2 w-full text-center">ACCESS TERMINAL</h2>
-            <WalletSelector />
+          {/* TOP: ACCESS PANEL (BIGGER) */}
+          <div className="cyber-box p-10 rounded flex flex-col items-center gap-8 bg-opacity-95 bg-[#050505] shadow-[0_0_50px_rgba(57,255,20,0.1)] border-2 border-[#39FF14]">
+            <h2 className="text-3xl tracking-[0.2em] border-b-2 border-[#39FF14] pb-2 w-full text-center">ACCESS TERMINAL</h2>
+
+            <div className="scale-125 my-4">
+              <WalletSelector />
+            </div>
 
             {showTerminal ? (
-              <div className="w-full flex flex-col gap-5 mt-2">
-                <div className="text-sm text-center font-mono">
-                  USER ID: <span className="text-white bg-[#39FF14] bg-opacity-20 px-2 rounded">{userLabel}</span>
+              <div className="w-full flex flex-col gap-6">
+                <div className="text-md text-center font-mono">
+                  OPERATOR: <span className="text-black bg-[#39FF14] font-bold px-3 py-1 rounded">{userLabel}</span>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-6 w-full">
                   <input
                     type="text"
-                    placeholder="PASTE CONTRACT ADDRESS OR TX HASH"
-                    className="bg-black border border-[#39FF14] text-[#39FF14] p-4 w-full outline-none focus:shadow-[0_0_15px_#39FF14] transition-shadow duration-300 font-mono"
+                    placeholder="PASTE CONTRACT ADDRESS OR TRANSACTION HASH HERE..."
+                    className="bg-black border-2 border-[#39FF14] text-[#39FF14] text-xl p-5 w-full outline-none focus:shadow-[0_0_30px_#39FF14] transition-shadow duration-300 font-mono text-center placeholder-gray-700"
                     value={target}
                     onChange={(e) => setTarget(e.target.value)}
                   />
@@ -105,76 +114,80 @@ function App() {
                   <button
                     onClick={handleAudit}
                     disabled={loading}
-                    className="cyber-btn w-full font-bold flex justify-center items-center py-4 text-xl"
+                    className="cyber-btn w-full font-bold flex justify-center items-center py-6 text-2xl hover:bg-[#39FF14] hover:text-black transition-all duration-300"
                   >
-                    {loading ? <span className="animate-pulse">SCANNING BLOCKCHAIN...</span> : "INITIATE SCAN"}
+                    {loading ? <span className="animate-pulse">SCANNING BLOCKCHAIN...</span> : "INITIATE SECURITY SCAN"}
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col gap-4 w-full mt-4 items-center p-4 border border-dashed border-gray-700 rounded">
-                <p className="text-gray-500 animate-pulse uppercase tracking-widest">Awaiting Secure Connection...</p>
+              <div className="flex flex-col gap-6 w-full items-center p-8 border-2 border-dashed border-gray-800 rounded bg-[#111]">
+                <p className="text-gray-500 animate-pulse uppercase tracking-widest text-xl">Awaiting Secure Uplink...</p>
                 <button
                   onClick={() => { // @ts-ignore
                     window.location.href = "http://localhost:5173/?bypass=true";
                   }}
-                  className="text-xs text-red-900 hover:text-red-500 transition-colors"
+                  className="text-xs text-red-900 hover:text-red-500 transition-colors mt-4"
                 >
-                  [ EMERGENCY BYPASS ]
+                  [ EMERGENCY BYPASS PROTOCOL ]
                 </button>
               </div>
             )}
           </div>
 
-          {/* RIGHT: RESULTS PANEL OR INFO */}
-          <div className="flex flex-col gap-6">
+          {/* BOTTOM: RESULTS PANEL */}
+          <div className="w-full transition-all duration-500">
             {auditResult ? (
-              <div className="cyber-box p-8 animate-in fade-in slide-in-from-right-10 duration-500 h-full bg-[#1a1a1a]">
-                <h3 className="text-2xl mb-6 border-b border-[#39FF14] flex justify-between items-center pb-2">
+              <div className="cyber-box p-8 animate-in fade-in slide-in-from-bottom-10 duration-500 bg-[#1a1a1a] border-l-4 border-l-[#39FF14]">
+                <h3 className="text-3xl mb-6 border-b border-[#39FF14] flex justify-between items-center pb-4">
                   <span>SCAN RESULT</span>
-                  <span className={`px-4 py-1 rounded border-2 font-bold ${auditResult.status === "Safe" ? "border-green-500 text-green-400 shadow-[0_0_10px_green]" :
-                      auditResult.status === "Risky" ? "border-red-500 text-red-500 shadow-[0_0_10px_red]" : "border-yellow-500 text-yellow-500"
+                  <span className={`px-6 py-2 rounded border-2 font-bold text-2xl ${auditResult.status === "Safe" ? "border-green-500 text-green-400 bg-green-900 bg-opacity-20" :
+                      auditResult.status === "Risky" ? "border-red-500 text-red-500 bg-red-900 bg-opacity-20" : "border-yellow-500 text-yellow-500"
                     }`}>
                     {auditResult.status?.toUpperCase() || "UNKNOWN"}
                   </span>
                 </h3>
 
                 {auditResult.risk_score !== undefined && (
-                  <div className="mb-6">
-                    <div className="flex justify-between text-xs mb-1"><span>SAFETY SCORE</span><span>{100 - auditResult.risk_score}%</span></div>
-                    <div className="w-full bg-gray-800 h-4 rounded overflow-hidden border border-gray-600">
+                  <div className="mb-8">
+                    <div className="flex justify-between text-sm mb-2 font-bold tracking-widest"><span>SAFETY INTEGRITY</span><span>{100 - auditResult.risk_score}%</span></div>
+                    <div className="w-full bg-gray-900 h-6 rounded overflow-hidden border border-gray-700 relative">
                       <div
-                        className={`h-full ${auditResult.risk_score > 50 ? 'bg-red-500' : 'bg-green-500'} transition-all duration-1000 ease-out`}
+                        className={`h-full ${auditResult.risk_score > 50 ? 'bg-gradient-to-r from-red-600 to-red-500' : 'bg-gradient-to-r from-green-600 to-green-400'} transition-all duration-1000 ease-out`}
                         style={{ width: `${auditResult.risk_score}%` }}
                       ></div>
+                      {/* Grid lines over bar */}
+                      <div className="absolute inset-0 bg-[url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIklEQVQIW2NkQAKrVq36zwjjgzjwqgOx4Wy4IsyDYZEBABw/GWE4/jOIAAAAAElFTkSuQmCC')] opacity-30"></div>
                     </div>
                   </div>
                 )}
 
-                <div className="prose prose-invert max-w-none prose-p:text-[#39FF14] prose-headings:text-[#39FF14]">
-                  <div className="text-sm font-mono leading-relaxed whitespace-pre-wrap">
+                <div className="prose prose-invert max-w-none">
+                  <div className="text-lg font-mono leading-relaxed whitespace-pre-wrap text-[#c0ffb3]">
                     {auditResult.reason || JSON.stringify(auditResult, null, 2)}
                   </div>
                   {auditResult.analysis && (
-                    <div className="mt-6 p-4 border border-gray-600 bg-black text-xs text-gray-300 font-mono rounded">
-                      <p className="mb-2 font-bold text-white uppercase border-b border-gray-700 pb-1">Gemini Analysis Engine</p>
+                    <div className="mt-8 p-6 border-2 border-gray-800 bg-black text-sm text-gray-300 font-mono rounded shadow-inner">
+                      <p className="mb-4 font-bold text-[#39FF14] text-lg uppercase border-b border-gray-800 pb-2 flex items-center gap-2">
+                        <span>👁️</span> GEMINI AI ANALYSIS ENGINE
+                      </p>
                       {auditResult.analysis}
                     </div>
                   )}
                 </div>
               </div>
             ) : (
-              <div className="cyber-box p-8 h-full flex flex-col justify-center items-center text-center opacity-75">
-                <div className="text-6xl text-[#39FF14] opacity-20 mb-4 animate-bounce">⚡</div>
-                <h3 className="text-xl text-gray-400">READY TO SCAN</h3>
-                <p className="text-gray-600 text-sm mt-2">Enter an address to analyze smart contract logic using Gemini AI.</p>
+              <div className="cyber-box p-12 flex flex-col justify-center items-center text-center opacity-60 bg-[#0d0d0d]">
+                <div className="text-7xl text-[#39FF14] opacity-20 mb-6 animate-pulse">⚡</div>
+                <h3 className="text-2xl text-gray-400 tracking-widest uppercase">Ready to Scan</h3>
+                <p className="text-gray-600 mt-2">Target acquisition pending...</p>
               </div>
             )}
           </div>
         </div>
 
         {/* FEATURES SECTION */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-10">
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl mt-10 opacity-80 hover:opacity-100 transition-opacity">
           <FeatureCard
             title="SMART AUDIT"
             icon="🛡️"
@@ -194,8 +207,8 @@ function App() {
 
       </main>
 
-      <footer className="w-full p-4 text-center text-xs text-gray-600 border-t border-gray-900 mt-10">
-        SENTINEL AI © 2025 | POWERED BY APTOS & GOOGLE GEMINI | SYSTEM STATUS: <span className={systemStatus === "ONLINE" ? "text-green-500" : "text-red-500"}>{systemStatus}</span>
+      <footer className="w-full p-6 text-center text-xs text-gray-600 border-t border-gray-900 mt-20">
+        SENTINEL AI © 2025 | POWERED BY APTOS & GOOGLE GEMINI
       </footer>
     </div>
   );

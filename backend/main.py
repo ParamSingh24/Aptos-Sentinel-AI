@@ -21,13 +21,15 @@ app.add_middleware(
 
 # Mock setup removed. We enforce Real SDK.
 try:
-    from aptos_sdk.client import RestClient
+    from aptos_sdk.async_client import RestClient
     from aptos_sdk.transactions import EntryFunction, TransactionArgument
     NODE_URL = "https://fullnode.devnet.aptoslabs.com/v1"
-    client = RestClient(NODE_URL)
+    # client initialized in startup
 except ImportError:
     # This should now crash if dependencies are missing, which is good for "Real" mode.
     raise ImportError("aptos_sdk not found. Please install requirements.txt")
+
+client = None # Global placeholder
 
 # Gemini Setup
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -46,6 +48,16 @@ class SimulationRequest(BaseModel):
     type_args: list[str]
     args: list[str]
 
+@app.on_event("startup")
+async def startup_event():
+    global client
+    client = RestClient(NODE_URL)
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if client:
+        await client.close()
+
 @app.get("/")
 def read_root():
     return {"message": "Sentinel AI Auditor Online", "status": "active"}
@@ -60,7 +72,7 @@ async def audit_target(request: AuditRequest):
         
         if request.type == "address":
             # Fetch modules from address
-            modules = client.get_account_modules(request.target)
+            modules = await client.account_modules(request.target)
             extracts = []
             for module in modules:
                 if 'abi' in module:
@@ -69,7 +81,7 @@ async def audit_target(request: AuditRequest):
             
         elif request.type == "transaction":
             # Fetch transaction details
-            tx = client.get_transaction_by_hash(request.target)
+            tx = await client.transaction_by_hash(request.target)
             bytecode_context = str(tx)
         
         else:
@@ -132,7 +144,7 @@ async def simulate_transaction(request: SimulationRequest):
         module_addr = request.function_id.split("::")[0]
         # function_name = request.function_id.split("::")[2] 
         
-        modules = client.get_account_modules(module_addr)
+        modules = await client.account_modules(module_addr)
         # Find the specific module ABI
         abi_context = "Module not found"
         for module in modules:
